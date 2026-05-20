@@ -73,11 +73,41 @@ async def handle_github_webhook(payload: GitHubWebhookPayload):
 
     review = await run_review(files)
 
+    comment_body = f"""
+## AI PR Review Assistant
+
+{review}
+
+---
+_Generated automatically by AI PR Review Assistant._
+"""
+
+    try:
+        await github_client.post_pull_request_comment(
+            repo_full_name=repo_name,
+            pr_number=pr_number,
+            body=comment_body,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except httpx.HTTPStatusError as exc:
+        raise HTTPException(
+            status_code=exc.response.status_code,
+            detail=_github_error_detail(
+                status_code=exc.response.status_code,
+                repo_name=repo_name,
+                pr_number=pr_number,
+            ),
+        ) from exc
+    except httpx.RequestError as exc:
+        raise HTTPException(status_code=502, detail="GitHub API is unreachable") from exc
+
     return {
         "status": "completed",
         "repository": repo_name,
         "pull_request": pr_number,
-        "review": review,
+        "changed_files": len(files),
+        "comment_posted": True,
     }
 
 
