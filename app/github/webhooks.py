@@ -82,32 +82,42 @@ async def handle_github_webhook(payload: GitHubWebhookPayload):
         ) from exc
 
     filtered_findings = [
-        finding for finding in review.findings if finding.confidence >= 0.7
+        finding
+        for finding in review.findings
+        if finding.confidence >= 0.7
     ]
 
-    comment_body = f"""
+    inline_comments = [
+        {
+            "path": finding.file,
+            "line": finding.line,
+            "body": f"**{finding.title}**\n\n{finding.comment}\n\nSeverity: `{finding.severity}`",
+        }
+        for finding in filtered_findings
+    ]
+
+    review_body = f"""
 ## AI PR Review Assistant
 
-### Summary
 {review.summary}
 
-### Findings
-"""
-
-    for finding in filtered_findings:
-        comment_body += f"""
-
-- [{finding.severity.upper()}] `{finding.file}` line {finding.line}
-  - {finding.title}
-  - {finding.comment}
+Findings: {len(filtered_findings)}
 """
 
     try:
-        await github_client.post_pull_request_comment(
-            repo_full_name=repo_name,
-            pr_number=pr_number,
-            body=comment_body,
-        )
+        if inline_comments:
+            await github_client.create_pull_request_review(
+                repo_full_name=repo_name,
+                pr_number=pr_number,
+                body=review_body,
+                comments=inline_comments,
+            )
+        else:
+            await github_client.post_pull_request_comment(
+                repo_full_name=repo_name,
+                pr_number=pr_number,
+                body=f"{review_body}\n\nNo high-confidence inline findings.",
+            )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except httpx.HTTPStatusError as exc:
@@ -117,7 +127,7 @@ async def handle_github_webhook(payload: GitHubWebhookPayload):
                 status_code=exc.response.status_code,
                 repo_name=repo_name,
                 pr_number=pr_number,
-                operation="post_comment",
+                operation="post_review" if inline_comments else "post_comment",
             ),
         ) from exc
     except httpx.RequestError as exc:
@@ -129,7 +139,7 @@ async def handle_github_webhook(payload: GitHubWebhookPayload):
         "pull_request": pr_number,
         "changed_files": len(files),
         "findings": len(review.findings),
-        "findings_posted": len(filtered_findings),
+        "inline_comments": len(inline_comments),
         "comment_posted": True,
     }
 
