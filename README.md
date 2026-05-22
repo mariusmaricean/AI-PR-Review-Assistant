@@ -2,15 +2,15 @@
 
 AI PR Review Assistant is a GitHub-integrated backend platform that reviews pull requests with AI, posts structured feedback back to GitHub, and exposes operational metrics for the review pipeline.
 
-## Problem
+## 🧩 Problem
 
 Code reviews are often slow, inconsistent, and heavily dependent on reviewer availability. Large pull requests make this worse: important bugs, missing tests, security risks, and architectural concerns can be missed when feedback is manual and context is scattered across the repository.
 
-## Solution
+## 🚀 Solution
 
 AI PR Review Assistant provides a repository-aware review pipeline that reacts to GitHub pull request events, retrieves diff and repository context, runs focused AI reviewers asynchronously, and posts structured feedback back to the PR. The system is designed as backend platform infrastructure: webhooks are verified, work runs through Celery, Redis tracks idempotency and metrics, and guardrails keep workloads bounded.
 
-## Features
+## ✨ Features
 
 - GitHub pull request webhook ingestion with signature verification.
 - GitHub App installation token support with personal access token fallback for local testing.
@@ -47,7 +47,7 @@ AI PR Review Assistant provides a repository-aware review pipeline that reacts t
 - Ruff
 - Pytest
 
-## Engineering Impact
+## 🏗️ Engineering Impact
 
 This project demonstrates:
 
@@ -58,7 +58,7 @@ This project demonstrates:
 - Secure webhook validation and idempotent job processing
 - Observability, metrics, and production-oriented deployment patterns
 
-## Architecture
+## 🧭 Architecture
 
 ```txt
 GitHub Pull Request Event
@@ -87,7 +87,9 @@ Metrics + Telemetry
 
 See [docs/architecture.md](docs/architecture.md) for the detailed architecture notes.
 
-## Local Development
+See [docs/diagrams](docs/diagrams) for Mermaid diagrams of the system architecture, review pipeline, async worker flow, and semantic retrieval flow.
+
+## 💻 Local Development
 
 Create and activate a virtual environment:
 
@@ -143,7 +145,7 @@ Open Swagger:
 http://localhost:8000/docs
 ```
 
-## Running with Docker
+## 📦 Running with Docker
 
 The current `docker-compose.yml` starts Redis for local development:
 
@@ -165,7 +167,7 @@ When running locally with Uvicorn, use localhost:
 REDIS_URL=redis://localhost:6379/0
 ```
 
-## GitHub App Setup
+## 🔐 GitHub App Setup
 
 Create a GitHub App with these local development settings:
 
@@ -178,7 +180,7 @@ Repository permissions should allow reading pull requests and contents, and writ
 
 For local testing, a `GITHUB_TOKEN` can still be used as a fallback, but GitHub App installation tokens are the preferred path.
 
-## Demo Workflow
+## 🔁 Demo Workflow
 
 1. A pull request is opened or updated.
 2. GitHub sends a signed webhook to `/webhooks/github`.
@@ -191,7 +193,7 @@ For local testing, a `GITHUB_TOKEN` can still be used as a fallback, but GitHub 
 9. GitHub receives inline review comments, or a fallback summary comment if inline publishing fails.
 10. Redis metrics and telemetry are updated.
 
-## Semantic Retrieval
+## 🔎 Semantic Retrieval
 
 Build the local repository context index:
 
@@ -215,7 +217,7 @@ POST /retrieval/reindex
 x-admin-token: your ADMIN_API_TOKEN value
 ```
 
-## Metrics APIs
+## 📊 Metrics APIs
 
 Review metrics are stored in Redis and exposed through an admin-protected endpoint:
 
@@ -238,7 +240,7 @@ Example response:
 }
 ```
 
-## Example Screenshots
+## 🖼️ Example Screenshots
 
 Demo screenshots should be added under [docs/screenshots](docs/screenshots):
 
@@ -247,16 +249,18 @@ Demo screenshots should be added under [docs/screenshots](docs/screenshots):
 - Inline GitHub PR comments.
 - Celery worker logs processing a review.
 
-## Future Roadmap
+## ⚠️ Current Limitations
 
-- Fully containerize API and worker services.
-- Add automated tests for webhook validation, review service paths, and retrieval APIs.
-- Add CI coverage for linting and test execution.
-- Export OpenTelemetry traces to a collector.
-- Add SaaS multi-tenancy for multiple GitHub installations.
-- Move semantic retrieval to a managed vector database.
-- Add historical PR learning from previous findings and fixes.
-- Add human feedback loops for accepted, dismissed, and corrected AI findings.
-- Add persistent review history storage and a metrics dashboard.
-- Add deployment guides for Render, Railway, Fly.io, or AWS.
-- Add screenshot and GIF demo assets for portfolio presentation.
+- Semantic retrieval uses local FAISS index
+- No persistent relational database yet
+- Limited reviewer feedback learning
+- Single-tenant deployment model
+
+## 🗺️ Future Improvements
+
+- Vector DB retrieval
+- Human reviewer feedback loops
+- Historical PR learning
+- SaaS multi-tenancy
+- OpenTelemetry exporters
+- Kubernetes deployment

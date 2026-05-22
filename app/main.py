@@ -13,7 +13,10 @@ from app.retrieval.routes import router as retrieval_router
 
 configure_logging()
 
-app = FastAPI(title=settings.app_name)
+app = FastAPI(
+    title=settings.app_name,
+    swagger_ui_parameters={"defaultModelsExpandDepth": -1},
+)
 app.include_router(metrics_router)
 app.include_router(retrieval_router)
 
