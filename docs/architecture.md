@@ -57,3 +57,10 @@ Metrics + Telemetry
 - Invalid AI JSON is converted into an empty structured review result.
 - Inline review API failures fall back to a normal PR summary comment.
 - Admin endpoints require `x-admin-token`.
+
+## Diagrams
+
+- [System Architecture](diagrams/system-architecture.md)
+- [Review Pipeline](diagrams/review-pipeline.md)
+- [Async Worker Flow](diagrams/async-worker-flow.md)
+- [Semantic Retrieval Flow](diagrams/semantic-retrieval-flow.md)
