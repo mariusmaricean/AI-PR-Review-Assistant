@@ -1,51 +1,119 @@
 # AI PR Review Assistant
 
-AI PR Review Assistant is a GitHub-integrated backend platform that reviews pull requests with AI, posts structured feedback back to GitHub, and exposes operational metrics for the review pipeline.
+AI PR Review Assistant is a repository-aware AI review platform that integrates with GitHub to automate pull request analysis using asynchronous multi-agent LLM orchestration, semantic repository retrieval, and structured inline engineering feedback.
 
-## 🧩 Problem
+The platform is designed as production-oriented backend infrastructure: GitHub webhooks are verified, workloads are processed asynchronously through Celery and Redis, semantic retrieval augments repository awareness, and operational metrics expose review pipeline behavior.
 
-Code reviews are often slow, inconsistent, and heavily dependent on reviewer availability. Large pull requests make this worse: important bugs, missing tests, security risks, and architectural concerns can be missed when feedback is manual and context is scattered across the repository.
+---
 
-## 🚀 Solution
+# 🧩 Problem
 
-AI PR Review Assistant provides a repository-aware review pipeline that reacts to GitHub pull request events, retrieves diff and repository context, runs focused AI reviewers asynchronously, and posts structured feedback back to the PR. The system is designed as backend platform infrastructure: webhooks are verified, work runs through Celery, Redis tracks idempotency and metrics, and guardrails keep workloads bounded.
+Modern engineering teams struggle with:
 
-## ✨ Features
+* slow pull request review cycles
+* inconsistent review quality
+* reviewer overload
+* large pull requests with missing context
+* architectural drift across repositories
+* difficulty enforcing consistent engineering standards
 
-- GitHub pull request webhook ingestion with signature verification.
-- GitHub App installation token support with personal access token fallback for local testing.
-- Celery background jobs backed by Redis.
-- Multi-agent AI review profiles for security, performance, maintainability, tests, and architecture.
-- Diff chunking for larger pull requests.
-- Language-aware review prompts.
-- Structured JSON review output with safe parsing fallback.
-- Inline GitHub PR review comments with summary-comment fallback.
-- Valid changed-line filtering to reduce GitHub `422` review errors.
-- Confidence filtering and configurable max comments.
-- Repository-aware context from README, CONTRIBUTING, and architecture docs.
-- Semantic context retrieval using Sentence Transformers and FAISS.
-- Redis-backed review metrics APIs.
-- OpenTelemetry tracing foundation and structured logs.
-- Redis idempotency to avoid duplicate review posts.
-- PR size guardrails for changed files and patch size.
-- Admin-protected maintenance endpoints.
+Traditional code review workflows rely heavily on manual effort and reviewer availability, making it easy for security risks, performance regressions, missing tests, and architectural concerns to go unnoticed.
 
-## ⚙️ Tech Stack
+---
 
-| Area | Technology |
-| --- | --- |
-| API | FastAPI |
-| Async Workers | Celery |
-| Queue/Broker | Redis |
-| AI | OpenAI API |
+# 🚀 Solution
+
+AI PR Review Assistant provides a repository-aware AI review pipeline that:
+
+1. reacts to GitHub pull request events
+2. validates and queues review workloads asynchronously
+3. retrieves repository and semantic context
+4. runs specialized AI reviewers
+5. validates findings against actual PR diff lines
+6. publishes inline GitHub review comments
+7. tracks operational metrics and telemetry
+
+The system is intentionally designed as engineering platform infrastructure rather than a simple AI wrapper.
+
+---
+
+# ✨ Features
+
+## GitHub Integration
+
+* GitHub App authentication
+* Signed webhook verification
+* Pull request webhook ingestion
+* Inline GitHub review comments
+* Summary comment fallback behavior
+* Repository-scoped permissions
+
+---
+
+## AI Review Pipeline
+
+* Multi-agent AI reviewer orchestration
+* Language-aware review prompts
+* Structured JSON AI outputs
+* Confidence scoring and filtering
+* Diff chunking for large pull requests
+* Repository-aware prompting
+* Semantic repository retrieval
+* Valid changed-line filtering
+
+---
+
+## Reliability & Scalability
+
+* Async background workers with Celery
+* Redis-backed distributed queueing
+* Idempotent review execution
+* PR size guardrails
+* Retry handling
+* Graceful malformed AI response fallback
+* Chunked review execution
+* Bounded workload processing
+
+---
+
+## Observability
+
+* Structured logging
+* OpenTelemetry instrumentation foundation
+* Redis-backed metrics APIs
+* Review duration tracking
+* Findings analytics
+* Publish-mode metrics
+
+---
+
+## Deployment
+
+* Dockerized services
+* Docker Compose orchestration
+* GitHub Actions CI pipeline
+* Railway / Render / Fly.io compatible
+
+---
+
+# ⚙️ Tech Stack
+
+| Area               | Technology                    |
+| ------------------ | ----------------------------- |
+| API                | FastAPI                       |
+| Async Workers      | Celery                        |
+| Queue/Broker       | Redis                         |
+| AI                 | OpenAI API                    |
 | Semantic Retrieval | FAISS + Sentence Transformers |
-| CI/CD | GitHub Actions |
-| Containerization | Docker Compose |
-| Telemetry | OpenTelemetry |
-| GitHub Integration | GitHub Apps |
-| Quality | Ruff + Pytest |
+| CI/CD              | GitHub Actions                |
+| Containerization   | Docker Compose                |
+| Telemetry          | OpenTelemetry                 |
+| GitHub Integration | GitHub Apps                   |
+| Quality            | Ruff + Pytest                 |
 
-## 🗂️ Repository Structure
+---
+
+# 🗂️ Repository Structure
 
 ```txt
 ai-pr-review-assistant/
@@ -73,25 +141,32 @@ ai-pr-review-assistant/
 └── .env.example
 ```
 
-## 🏗️ Engineering Impact
+---
+
+# 🏗️ Engineering Impact
 
 This project demonstrates:
 
-- Platform engineering with GitHub App integration
-- Asynchronous distributed processing with Celery and Redis
-- Multi-agent LLM orchestration for specialized code review
-- Repository-aware semantic retrieval for contextual AI feedback
-- Secure webhook validation and idempotent job processing
-- Observability, metrics, and production-oriented deployment patterns
+* Platform engineering with GitHub App integration
+* Distributed asynchronous processing with Celery and Redis
+* Multi-agent LLM orchestration
+* Repository-aware semantic retrieval
+* Secure webhook validation
+* Idempotent distributed job execution
+* Production-oriented observability patterns
+* AI workflow reliability engineering
+* Scalable backend architecture design
 
-## 🧭 Architecture
+---
+
+# 🧭 Architecture
 
 ```txt
 GitHub Pull Request Event
         |
 Webhook API (FastAPI)
         |
-Signature Verification
+Webhook Signature Verification
         |
 Celery Queue
         |
@@ -100,164 +175,379 @@ Redis Broker
 Background Worker
         |
 Review Pipeline
-   |-- Chunking
+   |-- Diff Chunking
    |-- Language Detection
    |-- Multi-Agent Reviewers
    |-- Semantic Context Retrieval
-   `-- Confidence Filtering
+   |-- Confidence Filtering
+   `-- Diff-Line Validation
         |
 GitHub Review Publisher
         |
 Metrics + Telemetry
 ```
 
-See [docs/architecture.md](docs/architecture.md) for the detailed architecture notes.
+See:
 
-See [docs/diagrams](docs/diagrams) for Mermaid diagrams of the system architecture, review pipeline, async worker flow, and semantic retrieval flow.
+* `docs/architecture.md`
+* `docs/diagrams/`
 
-## 💻 Local Development
+for additional architecture details and Mermaid diagrams.
 
-### Requirements
+---
 
-- Python 3.12+
-- Docker
-- Redis
-- GitHub App or local GitHub token
-- OpenAI API key
+# 🧠 Multi-Agent Review Architecture
 
-### Install
+Instead of using a single generic AI reviewer, the platform orchestrates multiple specialized reviewer agents.
 
-Create and activate a virtual environment:
+Current reviewer types:
+
+* Security Reviewer
+* Performance Reviewer
+* Maintainability Reviewer
+* Test Coverage Reviewer
+* Architecture Reviewer
+
+Each reviewer:
+
+* receives repository-aware context
+* applies language-specific prompting
+* produces structured findings
+* contributes to aggregated review output
+
+This architecture improves:
+
+* specialization
+* extensibility
+* review quality
+* future fine-tuning opportunities
+
+---
+
+# 🔎 Semantic Repository Retrieval
+
+The platform supports repository-aware reviews through semantic embedding search.
+
+## Retrieval Flow
+
+```txt
+Changed File
+    ↓
+Semantic Embedding Search
+    ↓
+Relevant Repository Files
+    ↓
+Repository Context Injection
+    ↓
+AI Review Generation
+```
+
+## Indexed Sources
+
+Examples:
+
+* README.md
+* CONTRIBUTING.md
+* architecture docs
+* adjacent Python modules
+* configuration files
+* related source files
+
+## Technologies
+
+* Sentence Transformers
+* FAISS
+* cosine similarity search
+
+---
+
+# 🔐 Security Considerations
+
+The platform includes:
+
+* GitHub webhook signature verification
+* Scoped GitHub App permissions
+* Admin-protected maintenance endpoints
+* Redis-backed idempotent processing
+* Secret isolation through environment variables
+* Safe fallback handling for malformed AI responses
+* Review workload guardrails
+
+---
+
+# 📈 Scalability Considerations
+
+The platform was designed with scalability in mind:
+
+* asynchronous review execution through Celery workers
+* bounded workload processing via diff chunking
+* semantic retrieval decoupled from review execution
+* Redis-backed distributed coordination
+* repository-scoped GitHub App authentication
+* modular reviewer orchestration
+* retryable distributed background jobs
+
+---
+
+# ⚖️ Key Engineering Decisions
+
+## Why Celery + Redis?
+
+Webhook handlers should return quickly to avoid GitHub timeouts and isolate long-running AI workloads.
+
+Celery + Redis provides:
+
+* asynchronous execution
+* retry handling
+* workload isolation
+* distributed worker scalability
+
+---
+
+## Why Multi-Agent Reviewers?
+
+Specialized reviewer profiles improve:
+
+* focus
+* extensibility
+* maintainability
+* review quality
+
+compared to a single generic reviewer.
+
+---
+
+## Why Semantic Retrieval?
+
+Diff-only reviewing lacks:
+
+* repository awareness
+* architectural context
+* coding convention understanding
+
+Semantic retrieval injects relevant repository knowledge into prompts.
+
+---
+
+## Why Chunking?
+
+Large pull requests create:
+
+* token pressure
+* latency spikes
+* hallucination risk
+
+Chunking provides bounded prompt sizes and safer review execution.
+
+---
+
+## Why Idempotency?
+
+GitHub webhooks may retry deliveries.
+
+Redis-backed idempotency prevents duplicate reviews and duplicate GitHub comments.
+
+---
+
+## Why GitHub App Authentication?
+
+GitHub Apps provide:
+
+* scoped permissions
+* repository isolation
+* organization install support
+* production-grade integration patterns
+
+---
+
+# 💻 Local Development
+
+## Requirements
+
+* Python 3.12+
+* Docker
+* Redis
+* GitHub App
+* OpenAI API key
+
+---
+
+# Installation
+
+## Clone Repository
+
+```bash
+git clone <repo-url>
+cd ai-pr-review-assistant
+```
+
+---
+
+## Create Virtual Environment
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Install dependencies:
+---
+
+## Install Dependencies
 
 ```bash
-python3 -m pip install --upgrade pip
-python3 -m pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-Copy `.env.example` to `.env`, then fill in local values:
+---
+
+# 🔧 Environment Variables
+
+Create `.env`
 
 ```txt
-OPENAI_API_KEY=your_openai_key
-GITHUB_TOKEN=your_local_github_token
-GITHUB_APP_ID=your_github_app_id
+OPENAI_API_KEY=
+GITHUB_TOKEN=
+GITHUB_APP_ID=
 GITHUB_PRIVATE_KEY_PATH=./github-app-private-key.pem
-GITHUB_WEBHOOK_SECRET=your_webhook_secret
-ADMIN_API_TOKEN=your_local_admin_token
-REDIS_URL=redis://localhost:6379/0
-REVIEW_IDEMPOTENCY_TTL_SECONDS=3600
-MAX_CHANGED_FILES=50
-MAX_PATCH_CHARS=60000
+GITHUB_WEBHOOK_SECRET=
+REDIS_URL=redis://redis:6379/0
+ADMIN_API_TOKEN=
 ```
 
-### Run
+---
 
-Start Redis:
+# 🐳 Docker Deployment
+
+## Build Containers
 
 ```bash
-docker compose up -d redis
+docker compose build
 ```
 
-Run the API:
+---
+
+## Run Services
 
 ```bash
-python3 -m uvicorn app.main:app --reload
+docker compose up --build
 ```
 
-Run the worker in a second terminal:
+Services:
+
+* API → [http://localhost:8000](http://localhost:8000)
+* Swagger → [http://localhost:8000/docs](http://localhost:8000/docs)
+* Redis → localhost:6379
+
+---
+
+# 🔁 Running Celery Worker
 
 ```bash
-source .venv/bin/activate
 celery -A app.worker.celery_app worker --loglevel=info
 ```
 
-Open Swagger:
+---
+
+# 🔗 GitHub App Setup
+
+## Repository Permissions
+
+* Pull Requests → Read & Write
+* Contents → Read-only
+* Metadata → Read-only
+* Issues → Read & Write
+
+---
+
+## Webhook Events
+
+* Pull Request
+
+---
+
+# Webhook Configuration
+
+Example webhook URL:
 
 ```txt
-http://localhost:8000/docs
+https://your-domain.com/webhooks/github
 ```
 
-## 📦 Running with Docker
-
-The current `docker-compose.yml` starts Redis for local development:
-
-```bash
-docker compose up -d redis
-```
-
-The API and worker currently run from the local Python environment. A future Dockerization pass should add API and worker services plus a Dockerfile for fully containerized development.
-
-When running inside Docker Compose, set Redis to the Compose service hostname:
+Webhook secret must match:
 
 ```txt
-REDIS_URL=redis://redis:6379/0
+GITHUB_WEBHOOK_SECRET
 ```
 
-When running locally with Uvicorn, use localhost:
+---
+
+# 🧪 GitHub Actions CI
+
+The project includes:
+
+* linting
+* tests
+* dependency installation
+* Redis service setup
+
+Pipeline location:
 
 ```txt
-REDIS_URL=redis://localhost:6379/0
+.github/workflows/ci.yml
 ```
 
-## 🔐 GitHub App Setup
+---
 
-Create a GitHub App with these local development settings:
-
-- Webhook URL: your ngrok URL plus `/webhooks/github`
-- Webhook secret: same value as `GITHUB_WEBHOOK_SECRET`
-- Subscribe to pull request events
-- Install the app on the repository you want to review
-
-Repository permissions should allow reading pull requests and contents, and writing pull request reviews or issue comments.
-
-For local testing, a `GITHUB_TOKEN` can still be used as a fallback, but GitHub App installation tokens are the preferred path.
-
-## 🔁 Demo Workflow
+# 🔁 Demo Workflow
 
 1. A pull request is opened or updated.
 2. GitHub sends a signed webhook to `/webhooks/github`.
-3. FastAPI verifies the event and signature.
-4. A Celery job is queued and the webhook returns quickly.
-5. The worker fetches changed files, repository config, and repository context.
-6. Guardrails skip oversized PRs before AI execution.
-7. The AI review pipeline runs chunked, language-aware, multi-agent reviews.
-8. Findings are filtered by confidence and valid changed lines.
-9. GitHub receives inline review comments, or a fallback summary comment if inline publishing fails.
-10. Redis metrics and telemetry are updated.
+3. FastAPI validates the webhook signature.
+4. A Celery job is queued.
+5. The webhook returns immediately.
+6. The worker fetches PR files and repository context.
+7. Guardrails validate PR workload size.
+8. Semantic retrieval fetches related repository context.
+9. Multi-agent AI reviewers analyze the PR.
+10. Findings are validated and filtered.
+11. Inline GitHub review comments are published.
+12. Metrics and telemetry are recorded.
 
-## 🔎 Semantic Retrieval
+---
 
-Build the local repository context index:
+# 🔎 Semantic Retrieval
+
+Build the local semantic index:
 
 ```bash
 python3 scripts/build_context_index.py
 ```
 
-This creates local FAISS artifacts:
+This creates:
 
 ```txt
 repo_context.index
 repo_context_files.txt
 ```
 
-These files are ignored by Git. The review pipeline uses the index to retrieve semantically related local files and injects that context into the AI reviewer prompt.
+The review pipeline uses these artifacts to retrieve semantically related repository files and inject additional context into AI reviewer prompts.
 
-You can rebuild the index through the API:
+---
+
+# 🔄 Reindex Repository Context
 
 ```txt
 POST /retrieval/reindex
 x-admin-token: your ADMIN_API_TOKEN value
 ```
 
-## 📊 Metrics APIs
+---
 
-Review metrics are stored in Redis and exposed through an admin-protected endpoint:
+# 📊 Metrics APIs
+
+Review metrics are stored in Redis and exposed through admin-protected APIs.
+
+## Review Metrics
 
 ```txt
 GET /metrics/reviews
@@ -278,27 +568,62 @@ Example response:
 }
 ```
 
-## 🖼️ Example Screenshots
+---
 
-Demo screenshots should be added under [docs/screenshots](docs/screenshots):
+# 🖼️ Example Screenshots
 
-- Swagger API with webhook, retrieval, and metrics endpoints.
-- Successful metrics endpoint response.
-- Inline GitHub PR comments.
-- Celery worker logs processing a review.
+Suggested screenshots:
 
-## ⚠️ Current Limitations
+* Swagger API endpoints
+* GitHub inline PR review comments
+* Metrics endpoint responses
+* Celery worker logs
+* Semantic retrieval reindex flow
 
-- Semantic retrieval uses local FAISS index
-- No persistent relational database yet
-- Limited reviewer feedback learning
-- Single-tenant deployment model
+Place screenshots under:
 
-## 🗺️ Future Improvements
+```txt
+docs/screenshots/
+```
 
-- Vector DB retrieval
-- Human reviewer feedback loops
-- Historical PR learning
-- SaaS multi-tenancy
-- OpenTelemetry exporters
-- Kubernetes deployment
+---
+
+# ⚠️ Current Limitations
+
+* Semantic retrieval uses local FAISS index
+* No persistent relational database yet
+* Limited reviewer feedback learning
+* Single-tenant deployment model
+* No historical PR learning yet
+
+---
+
+# 🗺️ Future Improvements
+
+Planned improvements:
+
+* Vector database retrieval
+* Historical PR intelligence
+* Human reviewer feedback loops
+* SaaS multi-tenancy
+* Kubernetes deployment
+* OpenTelemetry exporters
+* Persistent analytics storage
+* Frontend dashboard
+* Slack/Teams integration
+
+---
+
+# 🚀 Release
+
+Current release:
+
+```txt
+v1.0.0
+```
+
+---
+
+# 📄 License
+
+MIT License
